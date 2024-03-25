@@ -274,11 +274,36 @@ def main(args):
 
     trainer = Trainer(cfg)
     trainer.resume_or_load(resume=args.resume)
+
+    # Freezing all layers, but the class and mask predictor
+    
+    for name, param in trainer.model.named_parameters():
+        # if "transformer" in name or "pixel_decoder" in name or "backbone" in name:  # everything besides transformer and pixel_decoder
+        if name.startswith("sem_seg_head.predictor.motion") or name.startswith("sem_seg_head.predictor.class") or name.startswith("sem_seg_head.predictor.mask_embed"):
+            param.requires_grad = True
+            print(name, param.size(), param.requires_grad)
+        else:
+            param.requires_grad = False
+    
     return trainer.train()
 
 
 if __name__ == "__main__":
     args = default_argument_parser().parse_args()
+
+    # fresh one 
+    if no_args := True:
+        args.opts = ["MODEL.WEIGHTS", "/home/viewegm/models/mask2former_video/trained_models/model_0007999.pth"]
+        args.config_file = "/home/viewegm/git_folder/video_segmentation/ship_demo_video/configs/ship_R50.yaml"
+        args.num_gpus = 1
+
+        if train_from_start := True: 
+            args.resume = False
+        elif evaluation_run := False:
+            args.eval_only = True
+        else:
+            args.resume = True
+
     print("Command Line Args:", args)
     launch(
         main,

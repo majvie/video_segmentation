@@ -118,7 +118,7 @@ class VideoMaskFormer(nn.Module):
                 aux_weight_dict.update({k + f"_{i}": v for k, v in weight_dict.items()})
             weight_dict.update(aux_weight_dict)
 
-        losses = ["labels", "masks"]
+        losses = ["labels", "masks"]  #
 
         criterion = VideoSetCriterion(
             sem_seg_head.num_classes,
@@ -186,6 +186,16 @@ class VideoMaskFormer(nn.Module):
 
         features = self.backbone(images.tensor)
         outputs = self.sem_seg_head(features)
+
+        """
+        from pathlib import Path
+        from PIL import Image
+        import numpy as np
+        img = target_masks[0, 0, :, :]
+        print(img.shape)
+        mask_image = Image.fromarray(img.cpu().detach().numpy().astype(np.uint8) * 255)
+        mask_image.save("/home/viewegm/eval_mask_predicted.png")
+        """
 
         if self.training:
             # mask classification target

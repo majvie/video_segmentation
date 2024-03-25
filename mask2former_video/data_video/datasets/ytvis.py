@@ -112,6 +112,25 @@ YTVIS_CATEGORIES_2021 = [
 ]
 
 
+MARSYN_CATEGORIES = [
+    {"color": [106, 0, 228], "isthing": 1, "id": 1, "name": "boat"},
+]
+
+
+def _get_marsyn_instances_meta():
+    thing_ids = [k["id"] for k in MARSYN_CATEGORIES if k["isthing"] == 1]
+    thing_colors = [k["color"] for k in MARSYN_CATEGORIES if k["isthing"] == 1]
+    assert len(thing_ids) == 1, len(thing_ids)
+    # Mapping from the incontiguous YTVIS category id to an id in [0, 1]
+    thing_dataset_id_to_contiguous_id = {k: i for i, k in enumerate(thing_ids)}
+    thing_classes = [k["name"] for k in MARSYN_CATEGORIES if k["isthing"] == 1]
+    ret = {
+        "thing_dataset_id_to_contiguous_id": thing_dataset_id_to_contiguous_id,
+        "thing_classes": thing_classes,
+        "thing_colors": thing_colors,
+    }
+    return ret
+
 def _get_ytvis_2019_instances_meta():
     thing_ids = [k["id"] for k in YTVIS_CATEGORIES_2019 if k["isthing"] == 1]
     thing_colors = [k["color"] for k in YTVIS_CATEGORIES_2019 if k["isthing"] == 1]

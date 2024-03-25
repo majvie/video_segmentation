@@ -143,6 +143,20 @@ class VideoSetCriterion(nn.Module):
         """
         assert "pred_masks" in outputs
 
+        # Visualize the masks
+        """
+        from pathlib import Path
+        from PIL import Image
+        import numpy as np
+        gt_masks = target_masks[0, 0, :, :]
+        img = src_masks[0, 0, :, :]
+        print(gt_masks.shape)
+        mask_image = Image.fromarray(gt_masks.cpu().detach().numpy().astype(np.uint8) * 255)
+        mask_image.save("/home/viewegm/gt_mask.png")
+        mask_image = Image.fromarray(img.cpu().detach().numpy().astype(np.uint8) * 255)
+        mask_image.save("/home/viewegm/pred_masks.png")
+        """
+
         src_idx = self._get_src_permutation_idx(indices)
         src_masks = outputs["pred_masks"]
         src_masks = src_masks[src_idx]
@@ -232,6 +246,7 @@ class VideoSetCriterion(nn.Module):
             losses.update(self.get_loss(loss, outputs, targets, indices, num_masks))
 
         # In case of auxiliary losses, we repeat this process with the output of each intermediate layer.
+        
         if "aux_outputs" in outputs:
             for i, aux_outputs in enumerate(outputs["aux_outputs"]):
                 indices = self.matcher(aux_outputs, targets)
@@ -239,7 +254,7 @@ class VideoSetCriterion(nn.Module):
                     l_dict = self.get_loss(loss, aux_outputs, targets, indices, num_masks)
                     l_dict = {k + f"_{i}": v for k, v in l_dict.items()}
                     losses.update(l_dict)
-
+        
         return losses
 
     def __repr__(self):
